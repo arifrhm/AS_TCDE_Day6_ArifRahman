@@ -1,0 +1,16 @@
+# Dockerfile.event.producer
+
+# Menggunakan Python Alpine sebagai base image
+FROM python:3.10-alpine
+
+# Menetapkan direktori kerja di dalam container
+WORKDIR /app
+
+# Menyalin file aplikasi ke dalam container
+COPY . /app
+
+# Install dependensi Python
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Menjalankan Event Producer
+CMD ["python", "event_producer.py"]
