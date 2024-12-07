@@ -1,0 +1,22 @@
+# Dockerfile.stream
+
+# Menggunakan Python Alpine sebagai base image
+FROM python:3.10-alpine
+
+# Menetapkan direktori kerja di dalam container
+WORKDIR /app
+
+# Menyalin file aplikasi ke dalam container
+COPY . /app
+
+# Install dependensi Python
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install Spark dan dependensi lainnya
+RUN apk add --no-cache \
+    openjdk11-jre \
+    bash \
+    && pip install pyspark
+
+# Menjalankan PySpark Streaming Job
+CMD ["python", "streaming_job.py"]

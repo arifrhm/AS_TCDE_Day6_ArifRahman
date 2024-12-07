@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # Kafka Broker
+  kafka:
+    image: bitnami/kafka:latest
+    environment:
+      KAFKA_LISTENER_SECURITY_PROTOCOL: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENER_URI: "PLAINTEXT://kafka:9092"
+      KAFKA_LISTENER_PORT: 9092
+      KAFKA_LISTENER_NAME: PLAINTEXT
+      KAFKA_LISTENER_SECURITY_PROTOCOL: PLAINTEXT
+      KAFKA_LISTENER_NAME: PLAINTEXT
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    ports:
+      - "9092:9092"  # Kafka port
+    depends_on:
+      - zookeeper
+    networks:
+      - mynetwork
+
+  # Zookeeper for Kafka
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+    networks:
+      - mynetwork
+
+  # PostgreSQL for storing results
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dbname
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - mynetwork
+
+  # Event Producer Service
+  event_producer:
+    build:
+      context: .
+      dockerfile: Dockerfile.event.producer
+    environment:
+      KAFKA_SERVERS: kafka:9092
+      KAFKA_TOPIC: purchase_topic
+    depends_on:
+      - kafka
+    networks:
+      - mynetwork
+    volumes:
+      - ./output:/app/output  # Output logs ke folder output
+
+  # PySpark Streaming Job
+  streaming_job:
+    build:
+      context: .
+      dockerfile: Dockerfile.stream
+    environment:
+      KAFKA_SERVERS: kafka:9092
+      POSTGRES_URL: jdbc:postgresql://postgres:5432/dbname
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      KAFKA_TOPIC: purchase_topic
+    depends_on:
+      - kafka
+      - postgres
+    networks:
+      - mynetwork
+    volumes:
+      - ./output:/app/output  # Output logs ke folder output
+
+volumes:
+  postgres_data:
+
+networks:
+  mynetwork:
+    driver: bridge
