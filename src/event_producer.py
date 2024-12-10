@@ -14,7 +14,7 @@ def delivery_report(err, msg):
 
 # Inisialisasi Kafka producer
 producer = Producer(
-    {"bootstrap.servers": "localhost:9092"}
+    {"bootstrap.servers": "kafka:9092"}
 )  # Ganti dengan server Kafka yang digunakan
 
 # Daftar furniture yang dapat dipilih

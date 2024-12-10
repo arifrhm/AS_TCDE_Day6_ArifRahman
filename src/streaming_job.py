@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, window, sum, from_json
-from pyspark.sql.types import StructType, StringType, IntegerType
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType  # Add StructField here
 
 # Inisialisasi SparkSession
 spark = SparkSession.builder.appName("KafkaStreamingJob").getOrCreate()
@@ -44,7 +44,7 @@ query_postgres = (
     daily_purchase.writeStream.outputMode("complete")
     .foreachBatch(
         lambda df, epoch_id: df.write.jdbc(
-            url="jdbc:postgresql://localhost:5432/dbname",  # Ganti dengan URL PostgreSQL yang sesuai
+            url="jdbc:postgresql://postgres:5432/dbname",  # Ganti dengan URL PostgreSQL yang sesuai
             table="purchase_summary",
             mode="append",
             properties={
