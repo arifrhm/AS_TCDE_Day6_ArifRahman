@@ -3,6 +3,7 @@ import json
 import time
 from random import randint
 
+
 # Fungsi callback untuk laporan pengiriman pesan
 def delivery_report(err, msg):
     if err is not None:
@@ -10,8 +11,11 @@ def delivery_report(err, msg):
     else:
         print(f"Message delivered to {msg.topic()} [{msg.partition()}]")
 
+
 # Inisialisasi Kafka producer
-producer = Producer({'bootstrap.servers': 'localhost:9092'})  # Ganti dengan server Kafka yang digunakan
+producer = Producer(
+    {"bootstrap.servers": "localhost:9092"}
+)  # Ganti dengan server Kafka yang digunakan
 
 # Daftar furniture yang dapat dipilih
 furnitures = ["Chair", "Table", "Sofa", "Desk", "Lamp"]
@@ -21,16 +25,21 @@ while True:
     # Pilih furnitur secara acak dan tentukan nilai pembelian
     furniture = furnitures[randint(0, len(furnitures) - 1)]
     purchase_amount = randint(100, 1000)
-    
+
     # Membuat event pembelian
     event = {
         "furniture": furniture,
         "purchase_amount": purchase_amount,
-        "timestamp": int(time.time())  # Waktu saat event dibuat (epoch time)
+        "timestamp": int(time.time()),  # Waktu saat event dibuat (epoch time)
     }
 
     # Mengirim event ke Kafka
-    producer.produce('purchase_topic', key=furniture, value=json.dumps(event), callback=delivery_report)
+    producer.produce(
+        "purchase_topic",
+        key=furniture,
+        value=json.dumps(event),
+        callback=delivery_report,
+    )
     producer.flush()  # Pastikan pesan terkirim
 
     # Delay pengiriman event agar tidak terlalu cepat
