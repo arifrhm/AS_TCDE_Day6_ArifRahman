@@ -4,10 +4,7 @@ FROM python:3.10-alpine
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy the application code into the container
-COPY . /app
-
-# Install necessary system packages using apk
+# Install necessary system packages, including librdkafka development files
 RUN apk add --no-cache \
     gcc \
     libc-dev \
@@ -16,7 +13,15 @@ RUN apk add --no-cache \
     openjdk11-jre \
     bash \
     wget \
-    && wget https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_2.12/3.2.1/spark-sql-kafka-0-10_2.12-3.2.1.jar -P /opt/bitnami/spark/jars/
+    librdkafka-dev \
+    make \
+    && wget https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_2.12/3.3.0/spark-sql-kafka-0-10_2.12-3.3.0.jar -P /opt/bitnami/spark/jars/
+
+# Remove unnecessary APK cache to reduce image size
+RUN rm -rf /var/lib/apt/lists/*
+
+# Copy the application code and requirements.txt into the container
+COPY . /app
 
 # Install Python dependencies using pip
 RUN pip install --no-cache-dir -r requirements.txt

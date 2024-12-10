@@ -17,8 +17,9 @@ RUN apk add --no-cache \
     librdkafka-dev \
     g++ \
     openjdk11-jre \
-    bash
-
+    bash\
+    make\
+    rm -rf /var/lib/apt/lists/*
 # Install Python dependencies using pip
 RUN pip install --no-cache-dir -r requirements.txt
 
