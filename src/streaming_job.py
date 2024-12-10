@@ -44,7 +44,8 @@ query_postgres = (
     daily_purchase.writeStream.outputMode("complete")
     .foreachBatch(
         lambda df, epoch_id: df.write.jdbc(
-            url="jdbc:postgresql://postgres:5432/dbname",  # Ganti dengan URL PostgreSQL yang sesuai
+            # Ganti dengan URL PostgreSQL yang sesuai
+            url="jdbc:postgresql://postgres:5432/dbname",
             table="purchase_summary",
             mode="append",
             properties={

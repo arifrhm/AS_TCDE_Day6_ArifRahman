@@ -6,12 +6,12 @@ services:
     image: bitnami/kafka:latest
     environment:
       KAFKA_LISTENER_SECURITY_PROTOCOL: PLAINTEXT
-      KAFKA_ADVERTISED_LISTENER_URI: "PLAINTEXT://kafka:9092"  # You can adjust this if needed for your setup
+      KAFKA_ADVERTISED_LISTENER_URI: "PLAINTEXT://kafka:9092"  # Ensure this matches the service name
       KAFKA_LISTENER_PORT: 9092
       KAFKA_LISTENER_NAME: PLAINTEXT
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     ports:
-      - "9092:9092"  # Kafka port
+      - "9092:9092"
     depends_on:
       - zookeeper
     networks:
@@ -48,14 +48,14 @@ services:
       context: .
       dockerfile: Dockerfile.event.producer
     environment:
-      KAFKA_SERVERS: kafka:9092
+      KAFKA_SERVERS: kafka:9092  # Make sure the Kafka server URI is correct
       KAFKA_TOPIC: purchase_topic
     depends_on:
       - kafka
     networks:
       - mynetwork
     volumes:
-      - ./output:/app/output  # Output logs to the 'output' folder
+      - ./output:/app/output
 
   # PySpark Streaming Job
   streaming_job:
