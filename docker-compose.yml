@@ -6,7 +6,7 @@ services:
     image: bitnami/kafka:latest
     environment:
       KAFKA_LISTENER_SECURITY_PROTOCOL: PLAINTEXT
-      KAFKA_ADVERTISED_LISTENER_URI: "PLAINTEXT://kafka:9092"
+      KAFKA_ADVERTISED_LISTENER_URI: "PLAINTEXT://kafka:9092"  # You can adjust this if needed for your setup
       KAFKA_LISTENER_PORT: 9092
       KAFKA_LISTENER_NAME: PLAINTEXT
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -22,6 +22,7 @@ services:
     image: bitnami/zookeeper:latest
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
+      ALLOW_ANONYMOUS_LOGIN: "yes"  # Allow anonymous login to ZooKeeper
     ports:
       - "2181:2181"
     networks:
@@ -37,7 +38,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"  # Mapping port 5433 on the host to 5432 inside the container
     networks:
       - mynetwork
 
@@ -54,7 +55,7 @@ services:
     networks:
       - mynetwork
     volumes:
-      - ./output:/app/output  # Output logs ke folder output
+      - ./output:/app/output  # Output logs to the 'output' folder
 
   # PySpark Streaming Job
   streaming_job:
@@ -73,7 +74,7 @@ services:
     networks:
       - mynetwork
     volumes:
-      - ./output:/app/output  # Output logs ke folder output
+      - ./output:/app/output  # Output logs to the 'output' folder
 
 volumes:
   postgres_data:

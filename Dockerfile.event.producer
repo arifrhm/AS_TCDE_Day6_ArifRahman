@@ -9,8 +9,18 @@ WORKDIR /app
 # Menyalin file aplikasi ke dalam container
 COPY . /app
 
-# Install dependensi Python
+# Install necessary packages using apk
+RUN apk add --no-cache \
+    gcc \
+    libc-dev \
+    libffi-dev \
+    librdkafka-dev \
+    g++ \
+    openjdk11-jre \
+    bash
+
+# Install Python dependencies using pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Menjalankan Event Producer
-CMD ["python", "event_producer.py"]
+CMD ["python", "src/event_producer.py"]
