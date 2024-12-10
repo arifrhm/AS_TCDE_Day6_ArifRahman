@@ -48,7 +48,7 @@ services:
       context: .
       dockerfile: Dockerfile.event.producer
     environment:
-      KAFKA_SERVERS: kafka:9092  # Make sure the Kafka server URI is correct
+      KAFKA_SERVERS: kafka:9092  # Kafka service URI
       KAFKA_TOPIC: purchase_topic
     depends_on:
       - kafka
@@ -63,7 +63,7 @@ services:
       context: .
       dockerfile: Dockerfile.stream
     environment:
-      KAFKA_SERVERS: kafka:9092
+      KAFKA_SERVERS: kafka:9092  # Kafka service URI
       POSTGRES_URL: jdbc:postgresql://postgres:5432/dbname
       POSTGRES_USER: username
       POSTGRES_PASSWORD: password

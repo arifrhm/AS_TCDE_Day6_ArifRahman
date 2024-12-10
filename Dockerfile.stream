@@ -1,27 +1,32 @@
-# Dockerfile.stream
-
-# Menggunakan Python Alpine sebagai base image
+# Use the official Python 3.10 Alpine image
 FROM python:3.10-alpine
 
-# Menetapkan direktori kerja di dalam container
+# Set the working directory inside the container
 WORKDIR /app
 
-# Menyalin file aplikasi ke dalam container
+# Copy the application code into the container
 COPY . /app
 
-# Install necessary packages using apk
+# Install necessary system packages using apk
 RUN apk add --no-cache \
     gcc \
     libc-dev \
     libffi-dev \
-    librdkafka-dev \
     g++ \
     openjdk11-jre \
-    bash
+    bash \
+    wget \
+    && wget https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_2.12/3.2.1/spark-sql-kafka-0-10_2.12-3.2.1.jar -P /opt/bitnami/spark/jars/
 
 # Install Python dependencies using pip
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Set environment variables for Java (required for Spark)
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk
+ENV PATH=$JAVA_HOME/bin:$PATH
 
-# Menjalankan PySpark Streaming Job
+# Expose Spark's default port (for debugging purposes)
+EXPOSE 4040
+
+# Run the PySpark Streaming job when the container starts
 CMD ["python", "src/streaming_job.py"]
