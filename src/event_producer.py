@@ -4,20 +4,25 @@ import time
 from random import randint
 import signal
 import sys
+from config import KAFKA_TOPIC, KAFKA_SERVERS
 
 
 # Fungsi callback untuk laporan pengiriman pesan
 def delivery_report(err, msg):
     if err is not None:
-        print(f"Message delivery failed: {err}")
+        print(
+            f"Message delivery failed: {err}"
+        )
     else:
-        print(f"Message delivered to {msg.topic()} [{msg.partition()}]")
+        print(
+            f"Message delivered to {msg.topic()} [{msg.partition()}]"
+        )
 
 
 # Inisialisasi Kafka producer
 producer = Producer(
     # Ganti dengan server Kafka yang digunakan
-    {"bootstrap.servers": "kafka:9092"}
+    {"bootstrap.servers": KAFKA_SERVERS}
 )
 
 # Daftar furniture yang dapat dipilih
@@ -41,7 +46,7 @@ def send_purchase_event():
 
         # Mengirim event ke Kafka
         producer.produce(
-            "purchase_topic",
+            KAFKA_TOPIC,
             key=furniture,
             value=json.dumps(event),
             callback=delivery_report,

@@ -1,6 +1,27 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, window, sum, from_json, from_unixtime
-from pyspark.sql.types import StructType, StructField, StringType, LongType, IntegerType
+
+from pyspark.sql.functions import (
+    col,
+    window,
+    sum,
+    from_json
+)
+
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    StringType,
+    IntegerType
+)
+
+from config import (
+    POSTGRES_PASSWORD,
+    POSTGRES_USER,
+    POSTGRES_URL,
+    POSTGRES_TABLE,
+    KAFKA_TOPIC,
+    KAFKA_SERVERS
+)
 
 # Inisialisasi SparkSession dengan Kafka Connector
 spark = SparkSession.builder \
@@ -20,8 +41,8 @@ schema = StructType(
 # Membaca data dari Kafka
 kafka_stream = (
     spark.readStream.format("kafka")
-    .option("kafka.bootstrap.servers", "kafka:9092")  # Use the Docker service name 'kafka' here
-    .option("subscribe", "purchase_topic")
+    .option("kafka.bootstrap.servers", KAFKA_SERVERS)
+    .option("subscribe", KAFKA_TOPIC)
     .load()
 )
 
@@ -38,13 +59,16 @@ json_stream_with_timestamp = json_stream.withColumn(
 )
 
 # Agregasi pembelian harian
-daily_purchase = json_stream_with_timestamp.groupBy(
-    window(col("timestamp"), "1 day", "1 day").alias("day_window"), "furniture"
-).agg(sum("purchase_amount").alias("total_purchase"))
+daily_purchase = json_stream.groupBy(
+    window(col("timestamp"), "1 day", "1 day").
+    alias("day_window"), "furniture"
+).agg(sum("purchase_amount").
+      alias("total_purchase"))
 
 # Output ke konsol
 query_console = (
-    daily_purchase.writeStream.outputMode("complete").format("console").start()
+    daily_purchase.writeStream.outputMode("complete").
+    format("console").start()
 )
 
 # Output ke PostgreSQL
@@ -52,13 +76,14 @@ query_postgres = (
     daily_purchase.writeStream.outputMode("complete")
     .foreachBatch(
         lambda df, epoch_id: df.write.jdbc(
-            url="jdbc:postgresql://postgres:5432/dbname",  # Make sure this is correct
-            table="purchase_summary",
+            # Ganti dengan URL PostgreSQL yang sesuai
+            url=POSTGRES_URL,
+            table=POSTGRES_TABLE,
             mode="append",
             properties={
-                "user": "username",  # Replace with your username
-                "password": "password",  # Replace with your password
-            }
+                "user": POSTGRES_USER,
+                "password": POSTGRES_PASSWORD,
+            },
         )
     )
     .start()
